@@ -19,6 +19,16 @@ const navigationConfig = [
     icon: <Icon.Filter size={20} />,
     navLink: "/filters",
   },
+  {
+    id: "matriceDeFlux",
+    title: "Flux matrice",
+    type: "item",
+    icon: <Icon.Columns size={20} />,
+    navLink: "/matriceDeFlux",
+  },
+
+
+
   // {
   //   id: "dashboard",
   //   title: "Dashboard",

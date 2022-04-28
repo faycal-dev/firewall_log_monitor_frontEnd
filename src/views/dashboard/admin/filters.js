@@ -1,12 +1,12 @@
 import React from "react";
-import { Row, Col, Card, Button, CardBody, Input } from "reactstrap";
+import { Row, Col, Card, Button, CardBody, Input, Spinner } from "reactstrap";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import DataTableCustom from "./dataTable";
 import Select from "react-select";
 import Axios from "axios";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/light.css";
-import "../../../assets/scss/plugins/forms/flatpickr/flatpickr.scss"
+import "../../../assets/scss/plugins/forms/flatpickr/flatpickr.scss";
 
 const SeverityOptions = [
   {
@@ -29,18 +29,24 @@ const SeverityOptions = [
 
 const Filters = () => {
   const [data, setData] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
   const [severityFilter, setSeverityFilter] = React.useState([]);
   const [dateRange, setDateRange] = React.useState();
   const [ipAddr, setIpAddr] = React.useState("");
   const [type, setType] = React.useState("Severity");
 
   const handleChange = (newValue) => {
-    setSeverityFilter(newValue);
+    if (newValue !== null) {
+      setSeverityFilter(newValue);
+    } else {
+      setSeverityFilter([]);
+    }
   };
 
   const getDataBasedOnSeverity = async () => {
+    setLoading(true)
     let filter = severityFilter;
-    if (filter.length != 0) {
+    if (filter.length !== 0) {
       let query = filter[0].value;
       for (let index = 1; index < filter.length; index++) {
         query = query + "&" + filter[index].value;
@@ -49,46 +55,65 @@ const Filters = () => {
         `http://127.0.0.1:8000/dashboard/severity/${query}/`
       );
       setData(response.data.results);
+      setLoading(false)
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
+      setLoading(false)
     }
   };
 
   const getDataBasedOnIp = async () => {
-    if (ipAddr != "") {
+    setLoading(true)
+    if (ipAddr !== "") {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/ip/${ipAddr}/`
       );
       setData(response.data.results);
+      setLoading(false)
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
+      setLoading(false)
     }
   };
 
-
   const getDataBasedOnDate = async () => {
+    setLoading(true)
     if (dateRange.length === 2) {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/date/${dateRange[0].getTime()}to${dateRange[1].getTime()}/`
       );
       setData(response.data.results);
+      setLoading(false)
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
+      setLoading(false)
     }
   };
+
+
 
   React.useEffect(() => {
     getDataBasedOnSeverity();
   }, []);
+
+  if (loading) {
+    return (
+      <div style={{height:"100vh", width:"100%",display:"flex", justifyContent:"center", alignItems:"center"}}>
+        <Spinner type="grow" color="primary" size="lg"/>
+      </div>
+    );
+  }
+
+
   return (
     <React.Fragment>
       <Card>
@@ -172,7 +197,7 @@ const Filters = () => {
                 <Flatpickr
                   value={dateRange}
                   className="form-control"
-                  options={{ mode: "range",enableTime: true, }}
+                  options={{ mode: "range", enableTime: true }}
                   onChange={(date) => {
                     setDateRange(date);
                   }}
