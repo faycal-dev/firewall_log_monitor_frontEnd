@@ -166,7 +166,6 @@ const MatriceDeFlux = () => {
     getMatrice();
   }, []);
 
-  console.log(groupeByValue);
   if (loading) {
     return (
       <div
@@ -197,23 +196,13 @@ const MatriceDeFlux = () => {
     if (value.length) {
       filtered = DATA.filter((item) => {
         let startsWithCondition =
-          item.source_client_group
-            .toLowerCase()
-            .startsWith(value.toLowerCase()) ||
-          item.destination_client_group
-            .toLowerCase()
-            .startsWith(value.toLowerCase()) ||
+          item.Source.toLowerCase().startsWith(value.toLowerCase()) ||
+          item.Destination.toLowerCase().startsWith(value.toLowerCase()) ||
           item.Action.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.Destination_Service.toLowerCase().startsWith(
-            value.toLowerCase()
-          );
+          item.Destination_Service.toLowerCase().startsWith(value.toLowerCase());
         let includesCondition =
-          item.source_client_group
-            .toLowerCase()
-            .includes(value.toLowerCase()) ||
-          item.destination_client_group
-            .toLowerCase()
-            .includes(value.toLowerCase()) ||
+          item.Source.toLowerCase().includes(value.toLowerCase()) ||
+          item.Destination.toLowerCase().includes(value.toLowerCase()) ||
           item.Action.toLowerCase().includes(value.toLowerCase()) ||
           item.Destination_Service.toLowerCase().includes(value.toLowerCase());
 
@@ -297,7 +286,13 @@ const MatriceDeFlux = () => {
           <DataTable
             className="dataTable-custom"
             data={value.length ? filteredData : data}
-            columns={groupeByValue === "Source" ? COLUMNS : groupeByValue === "Destination" ? [COLUMNS[1],COLUMNS[0],COLUMNS[2],COLUMNS[3],COLUMNS[4]] : [COLUMNS[2],COLUMNS[0],COLUMNS[1],COLUMNS[3],COLUMNS[4]]}
+            columns={
+              groupeByValue === "Source"
+                ? COLUMNS
+                : groupeByValue === "Destination"
+                ? [COLUMNS[1], COLUMNS[0], COLUMNS[2], COLUMNS[3], COLUMNS[4]]
+                : [COLUMNS[2], COLUMNS[0], COLUMNS[1], COLUMNS[3], COLUMNS[4]]
+            }
             noHeader
             pagination
             subHeader

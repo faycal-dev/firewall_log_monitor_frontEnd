@@ -26,6 +26,13 @@ const navigationConfig = [
     icon: <Icon.Columns size={20} />,
     navLink: "/matriceDeFlux",
   },
+  {
+    id: "stats",
+    title: "Statistiques",
+    type: "item",
+    icon: <Icon.BarChart2 size={20} />,
+    navLink: "/stats",
+  },
 
 
 
