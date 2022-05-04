@@ -90,9 +90,8 @@ class PersoCard extends React.Component {
             className="mb-3"
           />
           {this.props.labels.map((item, index) => {
-              console.log(item)
             return (
-              <div className="chart-info d-flex justify-content-between mb-1">
+              <div key={index} className="chart-info d-flex justify-content-between mb-1">
                 <div className="series-info d-flex align-items-center">
                   <Circle
                     strokeWidth={5}
@@ -103,7 +102,7 @@ class PersoCard extends React.Component {
                 </div>
                 <div className="series-result">
                   <span className="align-middle">
-                    {(this.props.series[index] * 100000) / 100}
+                    {Math.round((this.props.series[index] * 100000) / 100)}
                   </span>
                 </div>
               </div>

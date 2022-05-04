@@ -1,5 +1,17 @@
 import React from "react";
-import { Row, Col, Card, Button, CardBody, Input, Spinner } from "reactstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Button,
+  CardBody,
+  Input,
+  Spinner,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import DataTableCustom from "./dataTable";
 import Select from "react-select";
@@ -30,6 +42,8 @@ const SeverityOptions = [
 const Filters = () => {
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [modal, setModal] = React.useState(false);
+  const [description, setDescription] = React.useState(false);
   const [severityFilter, setSeverityFilter] = React.useState([]);
   const [dateRange, setDateRange] = React.useState();
   const [ipAddr, setIpAddr] = React.useState("");
@@ -43,8 +57,12 @@ const Filters = () => {
     }
   };
 
+  const toggleModal = () => {
+    setModal((prevState) => !prevState);
+  };
+
   const getDataBasedOnSeverity = async () => {
-    setLoading(true)
+    setLoading(true);
     let filter = severityFilter;
     if (filter.length !== 0) {
       let query = filter[0].value;
@@ -55,51 +73,49 @@ const Filters = () => {
         `http://127.0.0.1:8000/dashboard/severity/${query}/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   const getDataBasedOnIp = async () => {
-    setLoading(true)
+    setLoading(true);
     if (ipAddr !== "") {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/ip/${ipAddr}/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   const getDataBasedOnDate = async () => {
-    setLoading(true)
+    setLoading(true);
     if (dateRange.length === 2) {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/date/${dateRange[0].getTime()}to${dateRange[1].getTime()}/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     } else {
       const response = await Axios.get(
         `http://127.0.0.1:8000/dashboard/severity/`
       );
       setData(response.data.results);
-      setLoading(false)
+      setLoading(false);
     }
   };
-
-
 
   React.useEffect(() => {
     getDataBasedOnSeverity();
@@ -107,15 +123,37 @@ const Filters = () => {
 
   if (loading) {
     return (
-      <div style={{height:"100vh", width:"100%",display:"flex", justifyContent:"center", alignItems:"center"}}>
-        <Spinner type="grow" color="primary" size="lg"/>
+      <div
+        style={{
+          height: "100vh",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Spinner type="grow" color="primary" size="lg" />
       </div>
     );
   }
 
-
   return (
     <React.Fragment>
+      <Modal
+        isOpen={modal}
+        toggle={toggleModal}
+        className="modal-dialog-centered"
+      >
+        <ModalHeader toggle={toggleModal}>Description:</ModalHeader>
+        <ModalBody>
+          <a>{description}</a>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={toggleModal}>
+            Ok
+          </Button>{" "}
+        </ModalFooter>
+      </Modal>
       <Card>
         <CardBody>
           <Row>
@@ -214,7 +252,13 @@ const Filters = () => {
       </Card>
       <Row className="match-height">
         <Col sm="12">
-          <DataTableCustom data={data} />
+          <DataTableCustom
+            data={data}
+            RowClicked={(e) => {
+              setDescription(e.Description);
+              toggleModal();
+            }}
+          />
         </Col>
       </Row>
     </React.Fragment>

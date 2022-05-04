@@ -185,6 +185,8 @@ class DataTableCustom extends React.Component {
             noHeader
             pagination
             paginationPerPage={50}
+            onRowClicked={(e)=>{this.props.RowClicked(e)}}
+            highlightOnHover
           />
         </CardBody>
       </Card>

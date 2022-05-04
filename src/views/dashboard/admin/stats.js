@@ -1,6 +1,9 @@
 import React from "react";
-import { Row, Col, Spinner } from "reactstrap";
+import { Row, Col, Spinner, Badge } from "reactstrap";
 import PersoCard from "./statisticCard";
+import BarCharts from "./batChart";
+import { getData } from "../../../redux/actions/data-list";
+import Axios from "axios";
 
 let $primary = "#7367F0",
   $success = "#28C76F",
@@ -17,9 +20,35 @@ let $primary = "#7367F0",
   $white = "#fff";
 
 const Stats = () => {
-  const [data, setData] = React.useState([]);
+  const [Actions, setActions] = React.useState({});
+  const [destination, setDestination] = React.useState({});
+  const [source, setSource] = React.useState({});
   const [loading, setLoading] = React.useState(false);
-  React.useEffect(() => {}, []);
+
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const response = await Axios.get(
+        "http://127.0.0.1:8000/dashboard/stats/"
+      );
+      let RoundedActions = {};
+      const ResponseActions = JSON.parse(response.data.Actions);
+      Object.entries(ResponseActions).forEach((item) => {
+        RoundedActions[item[0]] = (item[1] * 100) / 100000;
+      });
+
+      setActions(RoundedActions);
+      setSource(JSON.parse(response.data.source));
+      setDestination(JSON.parse(response.data.destination));
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    getData();
+  }, []);
 
   if (loading) {
     return (
@@ -28,11 +57,15 @@ const Stats = () => {
           height: "100vh",
           width: "100%",
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
         <Spinner type="grow" color="primary" size="lg" />
+        <Badge style={{ marginTop: 30, padding: 10 }} color="primary" pill>
+          Chargement de 100K logs cela peut prendre quelques secondes
+        </Badge>
       </div>
     );
   }
@@ -42,17 +75,32 @@ const Stats = () => {
       <Row>
         <Col lg="4" sm="12">
           <PersoCard
-            colorsName={["primary", "warning", "success", "danger"]}
-            colors={[$primary, $warning, $success, $danger]}
+            colorsName={["primary", "warning", "danger", "success"]}
+            colors={[$primary, $warning, $danger, $success]}
             gradientToColors={[
               $primary_light,
               $warning_light,
-              $success,
               $danger_light,
+              $success,
             ]}
-            labels={["built", "teardown", "accept", "deny"]}
-            series={[45, 45, 20, 10]}
+            labels={Object.keys(Actions)}
+            series={Object.values(Actions)}
             title="Actions"
+          />
+        </Col>
+        <Col lg="8" sm="12">
+          <BarCharts
+            labels={Object.keys(source)}
+            data={Object.values(source)}
+            title1="Les groupes d'utilisateurs les plus actif"
+            title2="les derniers 100 000 logs"
+          />
+
+          <BarCharts
+            labels={Object.keys(destination)}
+            data={Object.values(destination)}
+            title1="Les destinations les plus solliciter"
+            title2="les derniers 100 000 logs"
           />
         </Col>
       </Row>
