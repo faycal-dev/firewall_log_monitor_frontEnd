@@ -20,7 +20,7 @@ let $primary = "#7367F0",
   $white = "#fff";
 
 const Stats = () => {
-  const [Actions, setActions] = React.useState([]);
+  const [Actions, setActions] = React.useState({});
   const [destination, setDestination] = React.useState([]);
   const [destinationLabels, setDestinationLabels] = React.useState([]);
   const [source, setSource] = React.useState([]);
@@ -61,11 +61,12 @@ const Stats = () => {
         }
       );
       const response = Response.data.aggregations
-      // let RoundedActions = {};
-      // const ResponseActions = JSON.parse(response.data.Actions);
-      // Object.entries(ResponseActions).forEach((item) => {
-      //   RoundedActions[item[0]] = (item[1] * 100) / 100000;
-      // });
+      console.log(response)
+      const total_count = Response.data.hits.total.value
+      let RoundedActions = {};
+      response.Action_stat.buckets.map((item) => {
+        RoundedActions[item.key] = (item.doc_count * 100) / 100000;
+      });
       let sourceLabels = [] 
       response.Source_stat.buckets.map((item)=> {
         sourceLabels.push(item.key)
@@ -82,7 +83,7 @@ const Stats = () => {
       response.Destination_stat.buckets.map((item)=> {
         destinationData.push(item.doc_count)
       })
-      // setActions(RoundedActions);
+      setActions(RoundedActions);
       setSource(sourceData);
       setSourceLabels(sourceLabels)
       setDestination(destinationData);
@@ -116,7 +117,6 @@ const Stats = () => {
       </div>
     );
   }
-  console.log(sourceLabels)
 
   return (
     <React.Fragment>

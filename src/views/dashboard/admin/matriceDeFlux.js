@@ -13,7 +13,7 @@ import {
   Label,
   FormGroup,
 } from "reactstrap";
-import { Search, Settings } from "react-feather";
+import { Search, Settings,Download } from "react-feather";
 import Select from "react-select";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import Axios from "axios";
@@ -43,13 +43,6 @@ const GroupByOptions = [
 const CustomHeader = (props) => {
   return (
     <div className="d-flex flex-wrap justify-content-between">
-      <div className="add-new">
-        <Button.Ripple color="primary" onClick={props.toggleModal}>
-          {" "}
-          <Settings size="15" className="mr-1" />
-          Configuration
-        </Button.Ripple>
-      </div>
       <div
         style={{ width: "40%" }}
         className="position-relative has-icon-left mb-1"
@@ -62,6 +55,22 @@ const CustomHeader = (props) => {
         <div className="form-control-position">
           <Search size="15" />
         </div>
+      </div>
+      <div className="add-new">
+        <Button.Ripple color="primary" onClick={props.toggleModal}>
+          {" "}
+          <Settings size="15" className="mr-1" />
+          Configuration
+        </Button.Ripple>
+        <Button.Ripple
+          className="ml-1"
+          color="primary"
+          onClick={props.toggleModal}
+        >
+          {" "}
+          <Download size="15" className="mr-1" />
+          Sauvegarder
+        </Button.Ripple>
       </div>
     </div>
   );
@@ -254,9 +263,7 @@ const MatriceDeFlux = () => {
           item.key[0].toLowerCase().startsWith(value.toLowerCase()) ||
           item.key[1].toLowerCase().startsWith(value.toLowerCase()) ||
           item.key[2].toLowerCase().startsWith(value.toLowerCase()) ||
-          item.key[3].toLowerCase().startsWith(
-            value.toLowerCase()
-          );
+          item.key[3].toLowerCase().startsWith(value.toLowerCase());
         let includesCondition =
           item.key[0].toLowerCase().includes(value.toLowerCase()) ||
           item.key[1].toLowerCase().includes(value.toLowerCase()) ||
