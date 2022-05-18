@@ -40,74 +40,6 @@ const GroupByOptions = [
   },
 ];
 
-const COLUMNS = [
-  {
-    name: "Source user ip group",
-    selector: "source_client_group",
-    sortable: true,
-    minWidth: "150px",
-    cell: (row) => <p className="text-bold-500 mb-0">{row.Source}</p>,
-  },
-  {
-    name: "Destination user ip group",
-    selector: "destination_client_group",
-    sortable: true,
-    minWidth: "150px",
-    cell: (row) => <p className="text-bold-500 mb-0">{row.Destination}</p>,
-  },
-  {
-    name: "Destination service",
-    selector: "Destination_Service",
-    minWidth: "150px",
-    cell: (row) => (
-      <p className="text-bold-500 mb-0">{row.Destination_Service}</p>
-    ),
-  },
-  {
-    name: "Action",
-    selector: "Action",
-    minWidth: "150px",
-    cell: (row) => (
-      <Badge
-        color={
-          row.Action === "accept" ||
-          row.Action === "successful" ||
-          row.Action === "built"
-            ? "success"
-            : row.Action === "teardown"
-            ? "warning"
-            : "danger"
-        }
-        pill
-      >
-        {row.Action}
-      </Badge>
-    ),
-  },
-  {
-    name: "Number of hits",
-    selector: "Number_of_hits",
-    sortable: true,
-    // minWidth: "150px",
-    cell: (row) => (
-      <Badge
-        color={
-          row.len < 20 &&
-          (row.Action === "accept" || row.Action === "successful")
-            ? "danger"
-            : row.len > 500 &&
-              (row.Action === "deny" || row.Action === "failed")
-            ? "warning"
-            : "success"
-        }
-        pill
-      >
-        {row.len}
-      </Badge>
-    ),
-  },
-];
-
 const CustomHeader = (props) => {
   return (
     <div className="d-flex flex-wrap justify-content-between">
@@ -145,19 +77,142 @@ const MatriceDeFlux = () => {
   const [detailedIpDest, setDetailedIpDest] = React.useState(true);
   const [detailedIpSrc, setDetailedIpSrc] = React.useState(false);
 
+  const COLUMNS = [
+    {
+      name:
+        groupeByValue === "Source"
+          ? "Source user ip group"
+          : groupeByValue === "Destination"
+          ? "Destination user ip group"
+          : "Destination service",
+      selector: "source_client_group",
+      sortable: true,
+      minWidth: "150px",
+      cell: (row) => <p className="text-bold-500 mb-0">{row.key[0]}</p>,
+    },
+    {
+      name:
+        groupeByValue === "Source"
+          ? "Destination user ip group"
+          : "Source user ip group",
+
+      selector: "destination_client_group",
+      sortable: true,
+      minWidth: "150px",
+      cell: (row) => <p className="text-bold-500 mb-0">{row.key[1]}</p>,
+    },
+    {
+      name:
+        groupeByValue === "Source"
+          ? "Destination service"
+          : groupeByValue === "Destination"
+          ? "Destination service"
+          : "Destination user ip group",
+
+      selector: "Destination_Service",
+      minWidth: "150px",
+      cell: (row) => <p className="text-bold-500 mb-0">{row.key[2]}</p>,
+    },
+    {
+      name: "Action",
+      selector: "Action",
+      minWidth: "150px",
+      cell: (row) => (
+        <Badge
+          color={
+            row.key[3] === "accept" ||
+            row.key[3] === "successful" ||
+            row.key[3] === "built"
+              ? "success"
+              : row.key[3] === "teardown"
+              ? "warning"
+              : "danger"
+          }
+          pill
+        >
+          {row.key[3]}
+        </Badge>
+      ),
+    },
+    {
+      name: "Number of hits",
+      selector: "Number_of_hits",
+      sortable: true,
+      // minWidth: "150px",
+      cell: (row) => (
+        <Badge
+          color={
+            row.doc_count < 20 &&
+            (row.key[3] === "accept" || row.key[3] === "successful")
+              ? "danger"
+              : row.doc_count > 500 &&
+                (row.key[3] === "deny" || row.key[3] === "failed")
+              ? "warning"
+              : "success"
+          }
+          pill
+        >
+          {row.doc_count}
+        </Badge>
+      ),
+    },
+  ];
+
   const getMatrice = async () => {
     setModal(false);
     setLoading(true);
     try {
-      const response = await Axios.get(
-        `http://127.0.0.1:8000/dashboard/MatriceDeFlux/?GroupBy=${groupeByValue}&DetailedDest=${
-          !detailedIpDest ? "yes" : "no"
-        }&DetailedSrc=${!detailedIpSrc ? "yes" : "no"}`
+      // const response = await Axios.get(
+      //   `http://127.0.0.1:8000/dashboard/MatriceDeFlux/?GroupBy=${groupeByValue}&DetailedDest=${
+      //     !detailedIpDest ? "yes" : "no"
+      //   }&DetailedSrc=${!detailedIpSrc ? "yes" : "no"}`
+      // );
+
+      const response = await Axios.post(
+        "http://192.168.59.52:9200/logs2/_search",
+        {
+          size: 0,
+          aggs: {
+            agg: {
+              multi_terms: {
+                terms: [
+                  {
+                    field:
+                      groupeByValue === "Source"
+                        ? "Source.keyword"
+                        : groupeByValue === "Destination"
+                        ? "Destination.keyword"
+                        : "Destination_Service.keyword",
+                  },
+                  {
+                    field:
+                      groupeByValue === "Source"
+                        ? "Destination.keyword"
+                        : "Source.keyword",
+                  },
+                  {
+                    field:
+                      groupeByValue === "Source"
+                        ? "Destination_Service.keyword"
+                        : groupeByValue === "Destination"
+                        ? "Destination_Service.keyword"
+                        : "Destination.keyword",
+                  },
+                  {
+                    field: "Action.keyword",
+                  },
+                ],
+                size: 10000,
+              },
+            },
+          },
+        }
       );
-      const parsedResponse = JSON.parse(response.data);
+      const parsedResponse = response.data.aggregations.agg.buckets;
       setData(parsedResponse);
       setLoading(false);
-    } catch {
+    } catch (e) {
+      console.log(e);
       setLoading(false);
     }
   };
@@ -196,15 +251,17 @@ const MatriceDeFlux = () => {
     if (value.length) {
       filtered = DATA.filter((item) => {
         let startsWithCondition =
-          item.Source.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.Destination.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.Action.toLowerCase().startsWith(value.toLowerCase()) ||
-          item.Destination_Service.toLowerCase().startsWith(value.toLowerCase());
+          item.key[0].toLowerCase().startsWith(value.toLowerCase()) ||
+          item.key[1].toLowerCase().startsWith(value.toLowerCase()) ||
+          item.key[2].toLowerCase().startsWith(value.toLowerCase()) ||
+          item.key[3].toLowerCase().startsWith(
+            value.toLowerCase()
+          );
         let includesCondition =
-          item.Source.toLowerCase().includes(value.toLowerCase()) ||
-          item.Destination.toLowerCase().includes(value.toLowerCase()) ||
-          item.Action.toLowerCase().includes(value.toLowerCase()) ||
-          item.Destination_Service.toLowerCase().includes(value.toLowerCase());
+          item.key[0].toLowerCase().includes(value.toLowerCase()) ||
+          item.key[1].toLowerCase().includes(value.toLowerCase()) ||
+          item.key[2].toLowerCase().includes(value.toLowerCase()) ||
+          item.key[3].toLowerCase().includes(value.toLowerCase());
 
         if (startsWithCondition) {
           return startsWithCondition;
@@ -286,13 +343,7 @@ const MatriceDeFlux = () => {
           <DataTable
             className="dataTable-custom"
             data={value.length ? filteredData : data}
-            columns={
-              groupeByValue === "Source"
-                ? COLUMNS
-                : groupeByValue === "Destination"
-                ? [COLUMNS[1], COLUMNS[0], COLUMNS[2], COLUMNS[3], COLUMNS[4]]
-                : [COLUMNS[2], COLUMNS[0], COLUMNS[1], COLUMNS[3], COLUMNS[4]]
-            }
+            columns={COLUMNS}
             noHeader
             pagination
             subHeader

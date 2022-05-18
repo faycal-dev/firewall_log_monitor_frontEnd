@@ -20,26 +20,73 @@ let $primary = "#7367F0",
   $white = "#fff";
 
 const Stats = () => {
-  const [Actions, setActions] = React.useState({});
-  const [destination, setDestination] = React.useState({});
-  const [source, setSource] = React.useState({});
+  const [Actions, setActions] = React.useState([]);
+  const [destination, setDestination] = React.useState([]);
+  const [destinationLabels, setDestinationLabels] = React.useState([]);
+  const [source, setSource] = React.useState([]);
+  const [sourceLabels, setSourceLabels] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
   const getData = async () => {
     setLoading(true);
     try {
-      const response = await Axios.get(
-        "http://127.0.0.1:8000/dashboard/stats/"
-      );
-      let RoundedActions = {};
-      const ResponseActions = JSON.parse(response.data.Actions);
-      Object.entries(ResponseActions).forEach((item) => {
-        RoundedActions[item[0]] = (item[1] * 100) / 100000;
-      });
+      // const response = await Axios.get(
+      //   "http://127.0.0.1:8000/dashboard/stats/"
+      // );
 
-      setActions(RoundedActions);
-      setSource(JSON.parse(response.data.source));
-      setDestination(JSON.parse(response.data.destination));
+      const Response = await Axios.post(
+        "http://192.168.59.52:9200/logs2/_search",
+        {
+          size: 0,
+          aggs: {
+            Source_stat: {
+              terms: {
+                field: "Source.keyword",
+                size:7
+              },
+            },
+            Action_stat: {
+              terms: {
+                field: "Action.keyword",
+                size:7
+              },
+            },
+            Destination_stat: {
+              terms: {
+                field: "Destination.keyword",
+                size:7
+              },
+            },
+          },
+        }
+      );
+      const response = Response.data.aggregations
+      // let RoundedActions = {};
+      // const ResponseActions = JSON.parse(response.data.Actions);
+      // Object.entries(ResponseActions).forEach((item) => {
+      //   RoundedActions[item[0]] = (item[1] * 100) / 100000;
+      // });
+      let sourceLabels = [] 
+      response.Source_stat.buckets.map((item)=> {
+        sourceLabels.push(item.key)
+      })
+      let sourceData = [] 
+      response.Source_stat.buckets.map((item)=> {
+        sourceData.push(item.doc_count)
+      })
+      let destinationLabels = [] 
+      response.Destination_stat.buckets.map((item)=> {
+        destinationLabels.push(item.key)
+      })
+      let destinationData = [] 
+      response.Destination_stat.buckets.map((item)=> {
+        destinationData.push(item.doc_count)
+      })
+      // setActions(RoundedActions);
+      setSource(sourceData);
+      setSourceLabels(sourceLabels)
+      setDestination(destinationData);
+      setDestinationLabels(destinationLabels)
       setLoading(false);
     } catch {
       setLoading(false);
@@ -69,6 +116,7 @@ const Stats = () => {
       </div>
     );
   }
+  console.log(sourceLabels)
 
   return (
     <React.Fragment>
@@ -88,17 +136,17 @@ const Stats = () => {
             title="Actions"
           />
         </Col>
-        <Col lg="8" sm="12">
+        <Col lg="8" sm="12">  
           <BarCharts
-            labels={Object.keys(source)}
-            data={Object.values(source)}
+            labels={sourceLabels}
+            data={source}
             title1="Les groupes d'utilisateurs les plus actif"
             title2="les derniers 100 000 logs"
           />
 
           <BarCharts
-            labels={Object.keys(destination)}
-            data={Object.values(destination)}
+            labels={destinationLabels}
+            data={destination}
             title1="Les destinations les plus solliciter"
             title2="les derniers 100 000 logs"
           />
