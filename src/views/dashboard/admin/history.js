@@ -3,9 +3,9 @@ import { CardBody, Card, Spinner } from "reactstrap";
 import Axios from "axios";
 import DataTable from "react-data-table-component";
 import { Eye } from "react-feather";
+import { propTypes } from "react-hammerjs";
 
-
-const History = () => {
+const History = (props) => {
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -15,22 +15,32 @@ const History = () => {
       selector: "Date",
       sortable: true,
       minWidth: "150px",
-      cell: (row) => <p className="text-bold-500 mb-0">{new Date(row.date).toLocaleString()}</p>,
+      cell: (row) => (
+        <p className="text-bold-500 mb-0">
+          {new Date(row.date).toLocaleString()}
+        </p>
+      ),
     },
     {
-      name: "Date",
-      selector: "Date",
+      name: "Titre",
+      selector: "Titre",
       sortable: true,
       minWidth: "150px",
-      cell: (row) => <p className="text-bold-500 mb-0">title</p>,
+      cell: (row) => <p className="text-bold-500 mb-0">{row.title}</p>,
     },
     {
       name: "Actions",
       selector: "Actions",
       sortable: false,
       minWidth: "150px",
-      cell: (row) => <Eye size="20" onClick={()=>{console.log(row.data)}}/> ,
-
+      cell: (row) => (
+        <Eye
+          size="20"
+          onClick={() => {
+            props.history.push("/Detail", {data : row});
+          }}
+        />
+      ),
     },
   ];
 
@@ -46,7 +56,6 @@ const History = () => {
       );
       setData(response.data.results);
       setLoading(false);
-      console.log(response.data.results);
     } catch (e) {
       setLoading(false);
       console.log(e);
@@ -80,7 +89,9 @@ const History = () => {
             noHeader
             pagination
             paginationPerPage={10}
-            onRowClicked={(e)=>{console.log(e.data)}}
+            onRowClicked={(e) => {
+              props.history.push("/Detail", { data: e });
+            }}
             highlightOnHover
           />
         </CardBody>

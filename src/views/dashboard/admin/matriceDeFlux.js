@@ -18,6 +18,7 @@ import Select from "react-select";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import Axios from "axios";
 import DataTable from "react-data-table-component";
+import { setNestedObjectValues } from "formik";
 
 const GroupByOptions = [
   {
@@ -76,8 +77,10 @@ const MatriceDeFlux = () => {
   const [data, setData] = React.useState([]);
   const [filteredData, setFilteredData] = React.useState([]);
   const [value, setValue] = React.useState("");
+  const [title, setTitle] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [modal, setModal] = React.useState(false);
+  const [IsSave, setIsSave] = React.useState(false);
   const [groupeByValue, setGroupeByValue] = React.useState("Source");
   const [detailedIpDest, setDetailedIpDest] = React.useState(true);
   const [detailedIpSrc, setDetailedIpSrc] = React.useState(false);
@@ -167,12 +170,6 @@ const MatriceDeFlux = () => {
     setModal(false);
     setLoading(true);
     try {
-      // const response = await Axios.get(
-      //   `http://127.0.0.1:8000/dashboard/MatriceDeFlux/?GroupBy=${groupeByValue}&DetailedDest=${
-      //     !detailedIpDest ? "yes" : "no"
-      //   }&DetailedSrc=${!detailedIpSrc ? "yes" : "no"}`
-      // );
-
       const response = await Axios.post(
         "http://192.168.59.52:9200/logs2/_search",
         {
@@ -245,12 +242,19 @@ const MatriceDeFlux = () => {
     );
   }
 
-  const save = async () => {
+  const save = () => {
+    setIsSave(true);
+    toggleModal();
+  };
+
+  const FinalSave = async () => {
+    setIsSave(false);
+    toggleModal();
     try {
       setLoading(true);
       const response = await Axios.post(
         "http://127.0.0.1:8000/dashboard/saved_logs/",
-        {data : data}
+        { data: data, title: title, groupeByValue: groupeByValue }
       );
       setLoading(false);
     } catch (e) {
@@ -308,51 +312,76 @@ const MatriceDeFlux = () => {
         toggle={toggleModal}
         className="modal-dialog-centered"
       >
-        <ModalHeader toggle={toggleModal}>Configuration</ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label for="email">Groupe by:</Label>
-            <Select
-              value={groupeByValue}
-              name="groupBy"
-              options={GroupByOptions}
-              className="React"
-              classNamePrefix="select"
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Input
-              className="ml-25"
-              type="radio"
-              value={detailedIpDest}
-              onChange={() => {}}
-              onClick={() => {
-                setDetailedIpDest((prevState) => !prevState);
-              }}
-              checked={detailedIpDest}
-            />
-            <Label className="ml-2">Address destination detaillée ?</Label>
-          </FormGroup>
-          <FormGroup>
-            <Input
-              className="ml-25"
-              type="radio"
-              value={detailedIpSrc}
-              onChange={() => {}}
-              onClick={() => {
-                setDetailedIpSrc((prevState) => !prevState);
-              }}
-              checked={detailedIpSrc}
-            />
-            <Label className="ml-2">Address source detaillée ?</Label>
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={getMatrice}>
-            Ok
-          </Button>{" "}
-        </ModalFooter>
+        {IsSave ? (
+          <React.Fragment>
+            <ModalHeader toggle={toggleModal}>Titre</ModalHeader>
+            <ModalBody>
+              <FormGroup>
+                <Input
+                  className="ml-25"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                />
+                <Label className="ml-2">Entrer un titre</Label>
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={FinalSave}>
+                Ok
+              </Button>{" "}
+            </ModalFooter>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <ModalHeader toggle={toggleModal}>Configuration</ModalHeader>
+            <ModalBody>
+              <FormGroup>
+                <Label for="email">Groupe by:</Label>
+                <Select
+                  value={groupeByValue}
+                  name="groupBy"
+                  options={GroupByOptions}
+                  className="React"
+                  classNamePrefix="select"
+                  onChange={handleChange}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Input
+                  className="ml-25"
+                  type="radio"
+                  value={detailedIpDest}
+                  onChange={() => {}}
+                  onClick={() => {
+                    setDetailedIpDest((prevState) => !prevState);
+                  }}
+                  checked={detailedIpDest}
+                />
+                <Label className="ml-2">Address destination detaillée ?</Label>
+              </FormGroup>
+              <FormGroup>
+                <Input
+                  className="ml-25"
+                  type="radio"
+                  value={detailedIpSrc}
+                  onChange={() => {}}
+                  onClick={() => {
+                    setDetailedIpSrc((prevState) => !prevState);
+                  }}
+                  checked={detailedIpSrc}
+                />
+                <Label className="ml-2">Address source detaillée ?</Label>
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={getMatrice}>
+                Ok
+              </Button>{" "}
+            </ModalFooter>
+          </React.Fragment>
+        )}
       </Modal>
       <Card>
         <CardBody className="rdt_Wrapper">
