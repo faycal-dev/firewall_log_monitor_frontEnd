@@ -13,7 +13,7 @@ import {
   Label,
   FormGroup,
 } from "reactstrap";
-import { Search, Settings,Download } from "react-feather";
+import { Search, Settings, Download } from "react-feather";
 import Select from "react-select";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import Axios from "axios";
@@ -62,11 +62,7 @@ const CustomHeader = (props) => {
           <Settings size="15" className="mr-1" />
           Configuration
         </Button.Ripple>
-        <Button.Ripple
-          className="ml-1"
-          color="primary"
-          onClick={props.toggleModal}
-        >
+        <Button.Ripple className="ml-1" color="primary" onClick={props.save}>
           {" "}
           <Download size="15" className="mr-1" />
           Sauvegarder
@@ -221,7 +217,6 @@ const MatriceDeFlux = () => {
       setData(parsedResponse);
       setLoading(false);
     } catch (e) {
-      console.log(e);
       setLoading(false);
     }
   };
@@ -249,6 +244,20 @@ const MatriceDeFlux = () => {
       </div>
     );
   }
+
+  const save = async () => {
+    try {
+      setLoading(true);
+      const response = await Axios.post(
+        "http://127.0.0.1:8000/dashboard/saved_logs/",
+        {data : data}
+      );
+      setLoading(false);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    }
+  };
 
   const handleFilter = (e) => {
     let value = e.target.value;
@@ -360,6 +369,7 @@ const MatriceDeFlux = () => {
                 value={value}
                 handleFilter={handleFilter}
                 toggleModal={toggleModal}
+                save={save}
               />
             }
           />

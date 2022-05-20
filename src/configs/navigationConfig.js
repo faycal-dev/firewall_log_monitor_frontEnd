@@ -6,20 +6,6 @@ const navigationConfig = [
     groupTitle: "Surveillance",
   },
   {
-    id: "real_time_monitor",
-    title: "Real time",
-    type: "item",
-    icon: <Icon.Monitor size={20} />,
-    navLink: "/",
-  },
-  {
-    id: "filters",
-    title: "Filters",
-    type: "item",
-    icon: <Icon.Filter size={20} />,
-    navLink: "/filters",
-  },
-  {
     id: "matriceDeFlux",
     title: "Flux matrice",
     type: "item",
@@ -33,7 +19,28 @@ const navigationConfig = [
     icon: <Icon.BarChart2 size={20} />,
     navLink: "/stats",
   },
-
+  {
+    id: "history",
+    title: "History",
+    type: "item",
+    icon: <Icon.Download size={20} />,
+    navLink: "/historique",
+  },
+  {
+    id: "real_time_monitor",
+    title: "Real time",
+    type: "item",
+    icon: <Icon.Monitor size={20} />,
+    navLink: "/",
+  },
+  {
+    id: "filters",
+    title: "Filters",
+    type: "item",
+    icon: <Icon.Filter size={20} />,
+    navLink: "/filters",
+  },
+  
 
 
   // {

@@ -20,6 +20,9 @@ const MatriceDeFlux = lazy(() =>
 const Stats = lazy(() =>
   import("./views/dashboard/admin/stats")
 );
+const MatriceHistory = lazy(() =>
+  import("./views/dashboard/admin/history")
+);
 
 // const analyticsDashboard = lazy(() =>
 //   import("./views/dashboard/analytics/AnalyticsDashboard")
@@ -232,6 +235,7 @@ class AppRouter extends React.Component {
           <AppRoute exact path="/filters" component={Filters} />
           <AppRoute exact path="/matriceDeFlux" component={MatriceDeFlux} />
           <AppRoute exact path="/stats" component={Stats} />
+          <AppRoute exact path="/historique" component={MatriceHistory} />
           {/* <AppRoute
             path="/ecommerce-dashboard"
             component={ecommerceDashboard}
