@@ -39,12 +39,12 @@ class DataTableCustom extends React.Component {
           </div>
         ),
       },
-      {
-        name: "Event ID",
-        selector: "Event ID",
-        sortable: true,
-        cell: (row) => <p className="text-bold-500  mb-0">{row.Event_ID}</p>,
-      },
+      // {
+      //   name: "Event ID",
+      //   selector: "Event ID",
+      //   sortable: true,
+      //   cell: (row) => <p className="text-bold-500  mb-0">{row.Event_ID}</p>,
+      // },
       {
         name: "Event Type ID",
         selector: "Event Type ID",

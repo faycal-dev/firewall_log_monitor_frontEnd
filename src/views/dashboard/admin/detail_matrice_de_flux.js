@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardBody, Badge, Input, Button } from "reactstrap";
 import DataTable from "react-data-table-component";
-import { Search, SkipBack } from "react-feather";
+import { Search, ArrowLeftCircle } from "react-feather";
 
 const CustomHeader = (props) => {
   return (
@@ -9,7 +9,7 @@ const CustomHeader = (props) => {
       <div className="add-new">
         <Button.Ripple color="primary" onClick={props.back}>
           {" "}
-          <SkipBack size="15" className="mr-1" />
+          <ArrowLeftCircle size="20" className="mr-1" />
           Retour
         </Button.Ripple>
       </div>

@@ -35,9 +35,9 @@ const Stats = () => {
       // );
 
       const Response = await Axios.post(
-        "http://192.168.59.52:9200/logs2/_search",
+        "http://192.168.59.52:9200/logs/_search",
         {
-          size: 0,
+          size: 10000,
           aggs: {
             Source_stat: {
               terms: {
@@ -61,7 +61,6 @@ const Stats = () => {
         }
       );
       const response = Response.data.aggregations
-      console.log(response)
       const total_count = Response.data.hits.total.value
       let RoundedActions = {};
       response.Action_stat.buckets.map((item) => {
@@ -112,7 +111,7 @@ const Stats = () => {
       >
         <Spinner type="grow" color="primary" size="lg" />
         <Badge style={{ marginTop: 30, padding: 10 }} color="primary" pill>
-          Chargement de 100K logs cela peut prendre quelques secondes
+          Cela peut prendre quelques secondes
         </Badge>
       </div>
     );

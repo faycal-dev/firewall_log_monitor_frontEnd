@@ -18,7 +18,9 @@ import Select from "react-select";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
 import Axios from "axios";
 import DataTable from "react-data-table-component";
-import { setNestedObjectValues } from "formik";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/light.css";
+import "../../../assets/scss/plugins/forms/flatpickr/flatpickr.scss";
 
 const GroupByOptions = [
   {
@@ -76,6 +78,7 @@ const CustomHeader = (props) => {
 const MatriceDeFlux = () => {
   const [data, setData] = React.useState([]);
   const [filteredData, setFilteredData] = React.useState([]);
+  const [dateRange, setDateRange] = React.useState([]);
   const [value, setValue] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [loading, setLoading] = React.useState(false);
@@ -170,9 +173,18 @@ const MatriceDeFlux = () => {
     setModal(false);
     setLoading(true);
     try {
-      const response = await Axios.post(
-        "http://192.168.59.52:9200/logs2/_search",
-        {
+      let body = {};
+      if (dateRange.length === 2) {
+        body = {
+          query: {
+            range: {
+              "@timestamp": {
+                gte: dateRange[0].getTime(),
+                lt: dateRange[1].getTime(),
+                format: "epoch_millis",
+              },
+            },
+          },
           size: 0,
           aggs: {
             agg: {
@@ -180,17 +192,25 @@ const MatriceDeFlux = () => {
                 terms: [
                   {
                     field:
-                      groupeByValue === "Source"
+                      groupeByValue === "Source" && detailedIpSrc
                         ? "Source.keyword"
-                        : groupeByValue === "Destination"
+                        : groupeByValue === "Source" && !detailedIpSrc
+                        ? "Source_client_group.keyword"
+                        : groupeByValue === "Destination" && detailedIpDest
                         ? "Destination.keyword"
+                        : groupeByValue === "Destination" && !detailedIpDest
+                        ? "destination_client_group.keyword"
                         : "Destination_Service.keyword",
                   },
                   {
                     field:
-                      groupeByValue === "Source"
+                      groupeByValue === "Source" && detailedIpDest
                         ? "Destination.keyword"
-                        : "Source.keyword",
+                        : groupeByValue === "Source" && !detailedIpDest
+                        ? "destination_client_group.keyword"
+                        : detailedIpSrc
+                        ? "Source.keyword"
+                        : "Source_client_group.keyword",
                   },
                   {
                     field:
@@ -198,7 +218,9 @@ const MatriceDeFlux = () => {
                         ? "Destination_Service.keyword"
                         : groupeByValue === "Destination"
                         ? "Destination_Service.keyword"
-                        : "Destination.keyword",
+                        : detailedIpDest
+                        ? "Destination.keyword"
+                        : "destination_client_group.keyword",
                   },
                   {
                     field: "Action.keyword",
@@ -208,7 +230,59 @@ const MatriceDeFlux = () => {
               },
             },
           },
-        }
+        };
+      } else {
+        body = {
+          size: 0,
+          aggs: {
+            agg: {
+              multi_terms: {
+                terms: [
+                  {
+                    field:
+                      groupeByValue === "Source" && detailedIpSrc
+                        ? "Source.keyword"
+                        : groupeByValue === "Source" && !detailedIpSrc
+                        ? "Source_client_group.keyword"
+                        : groupeByValue === "Destination" && detailedIpDest
+                        ? "Destination.keyword"
+                        : groupeByValue === "Destination" && !detailedIpDest
+                        ? "destination_client_group.keyword"
+                        : "Destination_Service.keyword",
+                  },
+                  {
+                    field:
+                      groupeByValue === "Source" && detailedIpDest
+                        ? "Destination.keyword"
+                        : groupeByValue === "Source" && !detailedIpDest
+                        ? "destination_client_group.keyword"
+                        : detailedIpSrc
+                        ? "Source.keyword"
+                        : "Source_client_group.keyword",
+                  },
+                  {
+                    field:
+                      groupeByValue === "Source"
+                        ? "Destination_Service.keyword"
+                        : groupeByValue === "Destination"
+                        ? "Destination_Service.keyword"
+                        : detailedIpDest
+                        ? "Destination.keyword"
+                        : "destination_client_group.keyword",
+                  },
+                  {
+                    field: "Action.keyword",
+                  },
+                ],
+                size: 10000,
+              },
+            },
+          },
+        };
+      }
+      const response = await Axios.post(
+        "http://192.168.59.52:9200/logs/_search",
+        body
       );
       const parsedResponse = response.data.aggregations.agg.buckets;
       setData(parsedResponse);
@@ -236,7 +310,7 @@ const MatriceDeFlux = () => {
       >
         <Spinner type="grow" color="primary" size="lg" />
         <Badge style={{ marginTop: 30, padding: 10 }} color="primary" pill>
-          Chargement de 100K logs cela peut prendre quelques secondes
+          Cela peut prendre quelques secondes
         </Badge>
       </div>
     );
@@ -346,6 +420,17 @@ const MatriceDeFlux = () => {
                   className="React"
                   classNamePrefix="select"
                   onChange={handleChange}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label for="email">Interval de dates:</Label>
+                <Flatpickr
+                  value={dateRange}
+                  className="form-control"
+                  options={{ mode: "range", enableTime: true }}
+                  onChange={(date) => {
+                    setDateRange(date);
+                  }}
                 />
               </FormGroup>
               <FormGroup>
