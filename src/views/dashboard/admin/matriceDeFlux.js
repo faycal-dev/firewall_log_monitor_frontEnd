@@ -37,7 +37,7 @@ const GroupByOptions = [
   },
   {
     value: "Destination_service",
-    label: "Destination service",
+    label: "Protocole",
     color: "#5243AA",
     isFixed: true,
   },
@@ -51,7 +51,7 @@ const CustomHeader = (props) => {
         className="position-relative has-icon-left mb-1"
       >
         <Input
-          placeholder="Chercher par ip ou action ou service"
+          placeholder="Chercher par ip ou action ou protocole"
           value={props.value}
           onChange={(e) => props.handleFilter(e)}
         />
@@ -95,7 +95,7 @@ const MatriceDeFlux = () => {
           ? "Source user ip group"
           : groupeByValue === "Destination"
           ? "Destination user ip group"
-          : "Destination service",
+          : "Protocole",
       selector: "source_client_group",
       sortable: true,
       minWidth: "150px",
@@ -115,12 +115,12 @@ const MatriceDeFlux = () => {
     {
       name:
         groupeByValue === "Source"
-          ? "Destination service"
+          ? "Protocole"
           : groupeByValue === "Destination"
-          ? "Destination service"
+          ? "Protocole"
           : "Destination user ip group",
 
-      selector: "Destination_Service",
+      selector: "Protocole",
       minWidth: "150px",
       cell: (row) => <p className="text-bold-500 mb-0">{row.key[2]}</p>,
     },
@@ -200,7 +200,7 @@ const MatriceDeFlux = () => {
                         ? "Destination.keyword"
                         : groupeByValue === "Destination" && !detailedIpDest
                         ? "destination_client_group.keyword"
-                        : "Destination_Service.keyword",
+                        : "proto.keyword",
                   },
                   {
                     field:
@@ -215,9 +215,9 @@ const MatriceDeFlux = () => {
                   {
                     field:
                       groupeByValue === "Source"
-                        ? "Destination_Service.keyword"
+                        ? "proto.keyword"
                         : groupeByValue === "Destination"
-                        ? "Destination_Service.keyword"
+                        ? "proto.keyword"
                         : detailedIpDest
                         ? "Destination.keyword"
                         : "destination_client_group.keyword",
@@ -248,7 +248,7 @@ const MatriceDeFlux = () => {
                         ? "Destination.keyword"
                         : groupeByValue === "Destination" && !detailedIpDest
                         ? "destination_client_group.keyword"
-                        : "Destination_Service.keyword",
+                        : "proto.keyword",
                   },
                   {
                     field:
@@ -263,9 +263,9 @@ const MatriceDeFlux = () => {
                   {
                     field:
                       groupeByValue === "Source"
-                        ? "Destination_Service.keyword"
+                        ? "proto.keyword"
                         : groupeByValue === "Destination"
-                        ? "Destination_Service.keyword"
+                        ? "proto.keyword"
                         : detailedIpDest
                         ? "Destination.keyword"
                         : "destination_client_group.keyword",
@@ -281,7 +281,7 @@ const MatriceDeFlux = () => {
         };
       }
       const response = await Axios.post(
-        "http://192.168.59.52:9200/logs/_search",
+        "http://192.168.53.52:9200/log_store/_search",
         body
       );
       const parsedResponse = response.data.aggregations.agg.buckets;

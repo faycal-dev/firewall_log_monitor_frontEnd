@@ -235,9 +235,9 @@ class AppRouter extends React.Component {
       // Set the directory path if you are deploying in sub-folder
       <Router history={history}>
         <Switch>
+          <AppRoute exact path="/matriceDeFlux" component={MatriceDeFlux} />
           <AppRoute exact path="/" component={realTimeMonitor} />
           <AppRoute exact path="/filters" component={Filters} />
-          <AppRoute exact path="/matriceDeFlux" component={MatriceDeFlux} />
           <AppRoute exact path="/stats" component={Stats} />
           <AppRoute exact path="/historique" component={MatriceHistory} />
           <AppRoute exact path="/Detail" component={MatriceDetail} />

@@ -1,22 +1,6 @@
 import React from "react";
-import { Card, CardBody, Badge } from "reactstrap";
+import { Card, CardBody, Badge, Button } from "reactstrap";
 import DataTable from "react-data-table-component";
-
-// const CustomHeader = (props) => {
-//   return (
-//     <div className="d-flex flex-wrap justify-content-between">
-//       <div className="add-new">
-//         <Button.Ripple color="primary">Add New</Button.Ripple>
-//       </div>
-//       <div className="position-relative has-icon-left mb-1">
-//         <Input value={props.value} onChange={(e) => props.handleFilter(e)} />
-//         <div className="form-control-position">
-//           <Search size="15" />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 class DataTableCustom extends React.Component {
   state = {
@@ -37,20 +21,6 @@ class DataTableCustom extends React.Component {
             </span>
             {/* </div> */}
           </div>
-        ),
-      },
-      // {
-      //   name: "Event ID",
-      //   selector: "Event ID",
-      //   sortable: true,
-      //   cell: (row) => <p className="text-bold-500  mb-0">{row.Event_ID}</p>,
-      // },
-      {
-        name: "Event Type ID",
-        selector: "Event Type ID",
-        sortable: true,
-        cell: (row) => (
-          <p className="text-bold-500  mb-0">{row.Event_Type_ID}</p>
         ),
       },
       {
@@ -96,26 +66,22 @@ class DataTableCustom extends React.Component {
         cell: (row) => <p className="text-bold-500 mb-0">{row.Source}</p>,
       },
       {
-        name: "Source Service",
-        selector: "Source_Service",
-        sortable: true,
-        cell: (row) => (
-          <p className="text-bold-500 mb-0">{row.Source_Service}</p>
-        ),
-      },
-      {
         name: "Destination",
         selector: "Destination",
         sortable: true,
         cell: (row) => <p className="text-bold-500 mb-0">{row.Destination}</p>,
       },
       {
-        name: "Destination Service",
-        selector: "Destination_Service",
+        name: "Protocole",
+        selector: "Protocole",
         sortable: true,
-        cell: (row) => (
-          <p className="text-bold-500 mb-0">{row.Destination_Service}</p>
-        ),
+        cell: (row) => <p className="text-bold-500 mb-0">{row.proto}</p>,
+      },
+      {
+        name: "Port",
+        selector: "Port",
+        sortable: true,
+        cell: (row) => <p className="text-bold-500 mb-0">{row.port}</p>,
       },
       {
         name: "Action",
@@ -185,8 +151,23 @@ class DataTableCustom extends React.Component {
             noHeader
             pagination
             paginationPerPage={50}
-            onRowClicked={(e)=>{this.props.RowClicked(e)}}
+            onRowClicked={(e) => {
+              this.props.RowClicked(e);
+            }}
             highlightOnHover
+            subHeader
+            subHeaderComponent={
+              this.props?.verify_anomaly ? (
+                <Button.Ripple
+                  onClick={this.props.verify_anomaly}
+                  color="primary"
+                >
+                  Verifier anomaly
+                </Button.Ripple>
+              ) : (
+                <div></div>
+              )
+            }
           />
         </CardBody>
       </Card>

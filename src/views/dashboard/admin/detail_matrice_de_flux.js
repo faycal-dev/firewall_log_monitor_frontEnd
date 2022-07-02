@@ -42,7 +42,7 @@ const Matrice = (props) => {
           ? "Source user ip group"
           : groupeByValue === "Destination"
           ? "Destination user ip group"
-          : "Destination service",
+          : "Protocole",
       selector: "source_client_group",
       sortable: true,
       minWidth: "150px",
@@ -62,12 +62,12 @@ const Matrice = (props) => {
     {
       name:
         groupeByValue === "Source"
-          ? "Destination service"
+          ? "Protocole"
           : groupeByValue === "Destination"
-          ? "Destination service"
+          ? "Protocole"
           : "Destination user ip group",
 
-      selector: "Destination_Service",
+      selector: "Protocole",
       minWidth: "150px",
       cell: (row) => <p className="text-bold-500 mb-0">{row.key[2]}</p>,
     },

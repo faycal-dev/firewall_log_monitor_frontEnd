@@ -43,6 +43,7 @@ const Filters = () => {
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [modal, setModal] = React.useState(false);
+  const [anomaly, setAnomaly] = React.useState({});
   const [description, setDescription] = React.useState(false);
   const [severityFilter, setSeverityFilter] = React.useState([]);
   const [dateRange, setDateRange] = React.useState();
@@ -59,6 +60,17 @@ const Filters = () => {
 
   const toggleModal = () => {
     setModal((prevState) => !prevState);
+  };
+
+  const verify_anomaly = async () => {
+    const response = await Axios.post(
+      "http://127.0.0.1:8000/dashboard/verify_anomaly/",
+      data
+    );
+    if (response.data.Anomaly === true){
+      toggleModal();
+      setAnomaly(response.data.data);
+    }
   };
 
   const getDataBasedOnSeverity = async () => {
@@ -144,9 +156,16 @@ const Filters = () => {
         toggle={toggleModal}
         className="modal-dialog-centered"
       >
-        <ModalHeader toggle={toggleModal}>Description:</ModalHeader>
+        <ModalHeader toggle={toggleModal}>Possible flux anormale:</ModalHeader>
         <ModalBody>
-          <a>{description}</a>
+        <li>Temps de reception: {anomaly.Receive_Time}</li>
+          <li>Source IP: {anomaly.Source}</li>
+          <li>Destination IP: {anomaly.Destination}</li>
+          <li>Protocole: {anomaly.proto}</li>
+          <li>Port: {anomaly.port}</li>
+          <li>Severity: {anomaly.Severity}</li>
+          <li>Evénement: {anomaly.Event_Name}</li>
+          <li>Machine: {anomaly.Device}</li>
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={toggleModal}>
@@ -254,6 +273,7 @@ const Filters = () => {
         <Col sm="12">
           <DataTableCustom
             data={data}
+            verify_anomaly={verify_anomaly}
             RowClicked={(e) => {
               setDescription(e.Description);
               toggleModal();

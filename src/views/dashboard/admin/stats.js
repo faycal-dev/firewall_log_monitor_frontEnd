@@ -24,6 +24,7 @@ const Stats = () => {
   const [destination, setDestination] = React.useState([]);
   const [destinationLabels, setDestinationLabels] = React.useState([]);
   const [source, setSource] = React.useState([]);
+  const [total, setTotal] = React.useState(0);
   const [sourceLabels, setSourceLabels] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -35,58 +36,59 @@ const Stats = () => {
       // );
 
       const Response = await Axios.post(
-        "http://192.168.59.52:9200/logs/_search",
+        "http://192.168.53.52:9200/log_store/_search",
         {
           size: 10000,
           aggs: {
             Source_stat: {
               terms: {
                 field: "Source.keyword",
-                size:7
+                size: 7,
               },
             },
             Action_stat: {
               terms: {
                 field: "Action.keyword",
-                size:7
+                size: 7,
               },
             },
             Destination_stat: {
               terms: {
                 field: "Destination.keyword",
-                size:7
+                size: 7,
               },
             },
           },
         }
       );
-      const response = Response.data.aggregations
-      const total_count = Response.data.hits.total.value
+      const response = Response.data.aggregations;
+      const total_count = Response.data.hits.total.value;
+      setTotal(total_count);
       let RoundedActions = {};
       response.Action_stat.buckets.map((item) => {
-        RoundedActions[item.key] = (item.doc_count * 100) / 100000;
+        RoundedActions[item.key] = (item.doc_count * 100) / total_count;
       });
-      let sourceLabels = [] 
-      response.Source_stat.buckets.map((item)=> {
-        sourceLabels.push(item.key)
-      })
-      let sourceData = [] 
-      response.Source_stat.buckets.map((item)=> {
-        sourceData.push(item.doc_count)
-      })
-      let destinationLabels = [] 
-      response.Destination_stat.buckets.map((item)=> {
-        destinationLabels.push(item.key)
-      })
-      let destinationData = [] 
-      response.Destination_stat.buckets.map((item)=> {
-        destinationData.push(item.doc_count)
-      })
+      let sourceLabels = [];
+      response.Source_stat.buckets.map((item) => {
+        sourceLabels.push(item.key);
+      });
+      let sourceData = [];
+      response.Source_stat.buckets.map((item) => {
+        sourceData.push(item.doc_count);
+      });
+      let destinationLabels = [];
+      response.Destination_stat.buckets.map((item) => {
+        destinationLabels.push(item.key);
+      });
+      let destinationData = [];
+      response.Destination_stat.buckets.map((item) => {
+        destinationData.push(item.doc_count);
+      });
       setActions(RoundedActions);
       setSource(sourceData);
-      setSourceLabels(sourceLabels)
+      setSourceLabels(sourceLabels);
       setDestination(destinationData);
-      setDestinationLabels(destinationLabels)
+      setDestinationLabels(destinationLabels);
       setLoading(false);
     } catch {
       setLoading(false);
@@ -122,6 +124,7 @@ const Stats = () => {
       <Row>
         <Col lg="4" sm="12">
           <PersoCard
+            total={total}
             colorsName={["primary", "warning", "danger", "success"]}
             colors={[$primary, $warning, $danger, $success]}
             gradientToColors={[
@@ -135,19 +138,19 @@ const Stats = () => {
             title="Actions"
           />
         </Col>
-        <Col lg="8" sm="12">  
+        <Col lg="8" sm="12">
           <BarCharts
             labels={sourceLabels}
             data={source}
             title1="Les groupes d'utilisateurs les plus actif"
-            title2="les derniers 100 000 logs"
+            title2="les derniers 10 000 logs"
           />
 
           <BarCharts
             labels={destinationLabels}
             data={destination}
             title1="Les destinations les plus solliciter"
-            title2="les derniers 100 000 logs"
+            title2="les derniers 10 000 logs"
           />
         </Col>
       </Row>

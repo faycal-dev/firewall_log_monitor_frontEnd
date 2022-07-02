@@ -55,7 +55,7 @@ class PersoCard extends React.Component {
               label: "Total",
 
               formatter: () => {
-                return 100000;
+                return this.props.total;
               },
             },
           },
